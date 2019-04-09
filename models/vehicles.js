@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   vehicles.associate = function(models) {
     // associations can be defined here
-    models.vehicles.HasMany(models.reservations)
+    models.vehicles.hasMany(models.reservations)
   };
   return vehicles;
 };

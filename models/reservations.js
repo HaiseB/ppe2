@@ -9,12 +9,12 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   reservations.associate = function(models) {
     // associations can be defined here
-    models.reservations.belongsToMany(models.users, {
+    models.reservations.belongsTo(models.users, {
       foreignKey:{
         allowNull: false
       }
     })
-    models.reservations.belongsToMany(models.vehicles, {
+    models.reservations.belongsTo(models.vehicles, {
       foreignKey:{
         allowNull: false
       }

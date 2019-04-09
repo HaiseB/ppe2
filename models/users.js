@@ -6,12 +6,12 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     bio: DataTypes.STRING,
     locked: DataTypes.BOOLEAN,
-    roles_id: DataTypes.INTEGER
+    role: DataTypes.STRING
   }, {});
   users.associate = function(models) {
     // associations can be defined here
-    models.users.HasMany(models.reservations)
-    models.users.HasMany(models.messages)
+    models.users.hasMany(models.reservations),
+    models.users.hasMany(models.messages)
   };
   return users;
 };
