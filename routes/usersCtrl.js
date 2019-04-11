@@ -1,6 +1,6 @@
 // Imports
 var bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken');
+var jwtUtils = require('../utils/jwt.utils');
 var models = require('../models');
 
 //Routes
@@ -57,7 +57,44 @@ module.exports={
         });
 
     },
+
+
     login: function(req,res){
-        // TODO : To implement
+
+        // Params
+        var email=req.body.email;
+        var password =req.body.password;
+
+        if (email == null || password == null){
+            return res.status(400).json({'error' : 'missing parameters' });
+        }
+
+        // TODO verify mail regex & password length
+
+        /**
+         * vérification que l'utilisateur existe bien
+         */
+        models.users.findOne({
+            where : { email: email }
+        })
+        .then(function(userFound) {
+            if (userFound){
+                bcrypt.compare(password, userFound.password, function(errBycrypt, resBycrypt){
+                    if(resBycrypt){
+                        return res.status(200).json({
+                            'userId': userFound.id,
+                            'token': jwtUtils.generateTokenForUser(userFound)
+                        });
+                    } else {
+                        return  res.status(403).json({'error' : 'invalid password' });
+                    }
+                });
+            } else {
+                return  res.status(404).json({'error' : 'user does not exist' });
+            }
+        })
+        .catch(function(err) {
+            return res.status(500).json({'error' : 'unable to verify user' });
+        });
     }
 }
