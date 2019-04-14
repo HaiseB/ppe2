@@ -2,6 +2,11 @@
 var bcrypt = require('bcrypt');
 var jwtUtils = require('../utils/jwt.utils');
 var models = require('../models');
+var asyncLib = require('async');
+
+// Constants
+const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const PASSWORD_REGEX = /^(?=.*\d).{4,12}$/;
 
 //Routes
 module.exports={
@@ -18,10 +23,20 @@ module.exports={
             return res.status(400).json({'error' : 'missing parameters' });
         }
 
-        // TODO verify name length, mail regex, password etc...
+        if (name.length >= 13 || name.length <= 4){
+            return res.status(400).json({'error' : 'name must be between 5 and 12 characteres'});
+        }
+
+        if (!EMAIL_REGEX.test(email)){
+            return res.status(400).json({'error' : 'email is invalid'});
+        }
+
+        if (!PASSWORD_REGEX.test(password)){
+            return res.status(400).json({'error' : 'password must include at least one number and one letter and must have 4 to 12 characteres'});
+        }
 
         /**
-         * vérification que l'utilisateur n'éxiste pas déjà avant de l'ajouter
+         * vérification que l'utilisateur n'existe pas déjà avant de l'ajouter
          */
         models.users.findOne({
             attributes: ['email'],
@@ -63,7 +78,7 @@ module.exports={
 
         // Params
         var email=req.body.email;
-        var password =req.body.password;
+        var password=req.body.password;
 
         if (email == null || password == null){
             return res.status(400).json({'error' : 'missing parameters' });
@@ -96,5 +111,72 @@ module.exports={
         .catch(function(err) {
             return res.status(500).json({'error' : 'unable to verify user' });
         });
+    },
+
+    getUserProfile: function(req, res){
+        // Getting auth header
+        var headerAuth = req.headers['authorization'];
+        var userId = jwtUtils.getUserId(headerAuth);
+
+        if (userId < 0)
+            return res.status(400).json({'error' : 'wrong token' });
+
+        //c'est bien le 3...
+        //return res.status(400).json({userId});
+
+        models.users.findOne({
+            attributes: ['id', 'email', 'name', 'bio'],
+            where: { id:userId }
+        }).then(function(users){
+            if (users){
+                return  res.status(201).json(users);
+            } else {
+                return  res.status(404).json({'error' : 'user not found' });
+            }
+        }).catch(function(err){
+            return res.status(500).json({'error' : 'cannot fetch user' });
+        });
+    },
+
+    updateUserProfile: function(req, res){
+        // Gettinh auth header
+        var headerAuth = req.headers['authorization'];
+        var userId = jwtUtils.getUserId(headerAuth);
+
+        // Params
+        var bio = req.body.bio;
+
+        asyncLib.waterfall([
+            function(done){
+                models.users.findOne({
+                    attributes: ['id','bio'],
+                    where: { id:userId }
+                }).then(function(userFound){
+                    done(null, userFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'enable to verify user' });
+                });
+            },
+            function(userFound, done){
+                if (userFound){
+                    userFound.update({
+                        bio : (bio ? bio : userFound.bio)
+                    }).then(function(){
+                        done(userFound);
+                    }).catch(function(err){
+                        return res.status(500).json({'error' : 'cannot update user' });
+                    });
+                } else {
+                    return  res.status(404).json({'error' : 'user not found' });
+                }
+            },
+        ],function(userFound){
+            if (userFound){
+                return  res.status(201).json(userFound);
+            } else {
+                return res.status(500).json({'error' : 'cannot update user profile' });
+            }
+        });
+
     }
 }
