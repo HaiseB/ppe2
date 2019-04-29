@@ -29,11 +29,9 @@ module.exports = {
 
         asyncLib.waterfall([
             function(done){
-                //return res.status(200).json(userId);
                 models.users.findOne({
                     where: {id:userId}
                 }).then(function(userFound){
-                    //return res.status(200).json(userFound);
                     done(null, userFound);
                 }).catch(function(err){
                     return res.status(400).json({'error' : 'unable to verify user' });
@@ -41,11 +39,11 @@ module.exports = {
             },
             function(userFound, done){
                 if (userFound){
-                    //return res.status(200).json({'error' : 'mais nique' });
                     models.messages.create({
                         title : title,
                         content : content,
                         likes : 0,
+                        read : 0,
                         userId : userFound.id
                     })
                     .then(function(newMessage){
@@ -91,7 +89,7 @@ module.exports = {
                 }
         }).catch(function(err){
             console.log(err);
-            res.status(500).json({'error' : 'invalid fileds' });
+            res.status(500).json({'error' : 'invalid fields' });
         });
     },
 }

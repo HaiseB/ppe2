@@ -14,12 +14,17 @@ module.exports={
         // Params
         var email = req.body.email;
         var name = req.body.name;
+        var first_name = req.body.first_name;
         var password = req.body.password;
         var bio = req.body.bio;
         var locked = req.body.locked;
         var role = req.body.role;
 
-        if (email == null || name == null || password == null ){
+        /**
+         * Vérification des parametres passés
+         */
+
+        if (email == null || name == null || first_name == null || password == null ){
             return res.status(400).json({'error' : 'missing parameters' });
         }
 
@@ -48,6 +53,7 @@ module.exports={
                     var newUser = models.users.create({
                         email : email,
                         name : name,
+                        first_name : first_name,
                         password : bcryptedPassword,
                         bio : bio,
                         locked : 0,
@@ -114,18 +120,13 @@ module.exports={
     },
 
     getUserProfile: function(req, res){
-        // Getting auth header
         var headerAuth = req.headers['authorization'];
         var userId = jwtUtils.getUserId(headerAuth);
 
         if (userId < 0)
             return res.status(400).json({'error' : 'wrong token' });
-
-        //c'est bien le 3...
-        //return res.status(400).json({userId});
-
         models.users.findOne({
-            attributes: ['id', 'email', 'name', 'bio'],
+            attributes: ['id', 'email', 'name', 'first_name', 'bio'],
             where: { id:userId }
         }).then(function(users){
             if (users){

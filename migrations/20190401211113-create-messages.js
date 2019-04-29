@@ -16,13 +16,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      attachment: {
-        allowNull: true,
-        type: Sequelize.STRING
-      },
-      likes: {
+      read: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.BOOLEAN
       },
       userId: {
         allowNull: false,

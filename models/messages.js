@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     title: DataTypes.STRING,
     content: DataTypes.STRING,
     attachment: DataTypes.STRING,
-    likes: DataTypes.INTEGER
+    read: DataTypes.BOOLEAN,
   }, {});
   messages.associate = function(models) {
     // associations can be defined here
