@@ -16,6 +16,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      model: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      brand: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       places: {
         allowNull: false,
         type: Sequelize.INTEGER

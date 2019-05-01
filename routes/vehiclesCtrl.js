@@ -14,6 +14,8 @@ module.exports = {
         // Params
         var type = req.body.type;
         var license_plate = req.body.license_plate;
+        var model = req.body.model;
+        var brand = req.body.brand;
         var places = req.body.places;
         var kilometers = req.body.kilometers;
         var autonomy = req.body.autonomy;
@@ -36,6 +38,8 @@ module.exports = {
                 var newVehicule = models.vehicles.create({
                     type : type,
                     license_plate : license_plate,
+                    model : model,
+                    brand : brand,
                     places : places,
                     kilometers : kilometers,
                     autonomy : autonomy,
@@ -65,7 +69,7 @@ module.exports = {
         var order = req.query.order;
 
         models.vehicles.findAll({
-            order: [(order != null) ? order.split(':') : ['title', 'ASC']],
+            order: [(order != null) ? order.split(':') : ['type', 'ASC']],
             attributes: (fields !=='*' && fields !=null) ? fields.split(','):null,
             limit: (!isNaN(limit)) ? limit : null
             }).then(function(vehicles){

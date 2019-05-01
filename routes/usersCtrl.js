@@ -179,5 +179,24 @@ module.exports={
             }
         });
 
+    },
+
+    listUsers: function(req, res){
+        var fields = req.query.fields;
+        var order = req.query.order;
+
+        models.users.findAll({
+            order: [(order != null) ? order.split(':') : ['name', 'ASC']],
+            attributes: (fields !=='*' && fields !=null) ? fields.split(','):null
+            }).then(function(users){
+                if (users){
+                    res.status(200).json(users);
+                } else {
+                    return res.status(404).json({'error' : 'no users found' });
+                }
+        }).catch(function(err){
+            console.log(err);
+            res.status(500).json({'error' : 'invalid fields' });
+        });
     }
 }
