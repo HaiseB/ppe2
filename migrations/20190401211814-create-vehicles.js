@@ -24,10 +24,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      places: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
       kilometers: {
         allowNull: false,
         type: Sequelize.INTEGER

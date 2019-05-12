@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
     license_plate: DataTypes.STRING,
     model: DataTypes.STRING,
     brand: DataTypes.STRING,
-    places: DataTypes.INTEGER,
     kilometers: DataTypes.INTEGER,
     autonomy: DataTypes.INTEGER,
     fuel: DataTypes.STRING,

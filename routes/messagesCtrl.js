@@ -92,4 +92,41 @@ module.exports = {
             res.status(500).json({'error' : 'invalid fields' });
         });
     },
+
+    messageConsulted: function(req, res){
+        // Params
+        var id = req.body.id;
+
+        asyncLib.waterfall([
+            function(done){
+                models.messages.findOne({
+                    attributes: ['id'],
+                    where: { id }
+                }).then(function(messageFound){
+                    done(null, messageFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'enable to verify message' });
+                });
+            },
+            function(messageFound, done){
+                if (messageFound){
+                    messageFound.update({
+                        read : 1
+                    }).then(function(){
+                        done(messageFound);
+                    }).catch(function(err){
+                        return res.status(500).json({'error' : 'cannot update message' });
+                    });
+                } else {
+                    return  res.status(404).json({'error' : 'message not found' });
+                }
+            },
+        ],function(messageFound){
+            if (messageFound){
+                return  res.status(201).json(messageFound);
+            } else {
+                return res.status(500).json({'error' : 'cannot update message' });
+            }
+        });
+    }
 }

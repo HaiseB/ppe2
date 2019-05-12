@@ -7,8 +7,7 @@ var asyncLib = require('async');
 // Constants
 
 //Routes
-
-module.exports = {
+module.exports={
     createVehicle: function(req, res){
 
         // Params
@@ -16,12 +15,11 @@ module.exports = {
         var license_plate = req.body.license_plate;
         var model = req.body.model;
         var brand = req.body.brand;
-        var places = req.body.places;
         var kilometers = req.body.kilometers;
         var autonomy = req.body.autonomy;
         var fuel = req.body.fuel;
 
-        if (type == null || license_plate == null || places == null || kilometers == null || autonomy == null || fuel == null){
+        if (type == null || license_plate == null || kilometers == null || autonomy == null || fuel == null){
             return res.status(400).json({'error' : 'missing parameters' });
         }
 
@@ -40,7 +38,6 @@ module.exports = {
                     license_plate : license_plate,
                     model : model,
                     brand : brand,
-                    places : places,
                     kilometers : kilometers,
                     autonomy : autonomy,
                     fuel : fuel,
@@ -82,5 +79,58 @@ module.exports = {
             console.log(err);
             res.status(500).json({'error' : 'invalid fields' });
         });
+    },
+
+    updateVehicle: function(req, res){
+        // Gettinh auth header
+        var headerAuth = req.headers['authorization'];
+
+        // Params
+        var type = req.body.type;
+        var license_plate = req.body.license_plate;
+        var model = req.body.model;
+        var brand = req.body.brand;
+        var kilometers = req.body.kilometers;
+        var autonomy = req.body.autonomy;
+        var locked = req.body.locked;
+
+        asyncLib.waterfall([
+            function(done){
+                models.vehicles.findOne({
+                    attributes: ['id','type','license_plate','model','brand','kilometers','autonomy','locked'],
+                    where: { license_plate }
+                }).then(function(vehicleFound){
+                    done(null, vehicleFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'enable to find vehicle' });
+                });
+            },
+            function(vehicleFound, done){
+                if (vehicleFound){
+                    vehicleFound.update({
+                        type : (type ? type : vehicleFound.type),
+                        license_plate : (license_plate ? license_plate : vehicleFound.license_plate),
+                        model : (model ? model : vehicleFound.model),
+                        brand : (brand ? brand : vehicleFound.brand),
+                        kilometers : (kilometers ? kilometers : vehicleFound.kilometers),
+                        autonomy : (autonomy ? autonomy : vehicleFound.autonomy),
+                        locked : (locked ? locked : vehicleFound.locked)
+                    }).then(function(){
+                        done(vehicleFound);
+                    }).catch(function(err){
+                        return res.status(500).json({'error' : 'vehicle cannot be updated' });
+                    });
+                } else {
+                    return  res.status(404).json({'error' : 'vehicle not found' });
+                }
+            },
+        ],function(vehicleFound){
+            if (vehicleFound){
+                return  res.status(201).json(vehicleFound);
+            } else {
+                return res.status(500).json({'error' : 'cannot update vehicle' });
+            }
+        });
+
     }
 }

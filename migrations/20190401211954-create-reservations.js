@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      status: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      users_id: {
+      userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references:{
@@ -28,7 +28,7 @@ module.exports = {
           key: 'id'
         }
       },
-      vehicles_id: {
+      vehicleId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references:{
