@@ -3,13 +3,14 @@ var bcrypt = require('bcrypt');
 var jwtUtils = require('../utils/jwt.utils');
 var models = require('../models');
 var asyncLib = require('async');
+
 var Sequelize= require('sequelize');
+const Op = Sequelize.Op;
 
 // Constants
 const TITLE_LIMIT=2;
 const CONTENT_LIMIT=8;
 const ITEMS_LIMIT   = 50;
-const Op = Sequelize.Op;
 
 //Routes
 module.exports = {
@@ -19,7 +20,7 @@ module.exports = {
         var userId = jwtUtils.getUserId(headerAuth);
 
         // Params
-        var status = 'validated Reservation';
+        var status = 'En cours';
         var vehicleId = req.body.vehicleId;
         var start = req.body.start;
         var end = req.body.end;
@@ -65,6 +66,9 @@ module.exports = {
                         var concatenate = month+' '+day+', '+year+' 20:00:00';
                         var end = new Date(concatenate);
                     }
+                    vehicleFound.update({
+                            locked : 1
+                        })
                     var newReservation = models.reservations.create({
                         status : status,
                         start : start,
@@ -125,10 +129,9 @@ module.exports = {
     ongoingReservations: function(req, res){
         var fields = req.query.fields;
         var order = req.query.order;
-        var now = new Date();
 
         models.reservations.findAll({
-            where: {status: 'validated Reservation'},
+            where: {status: 'En cours'},
             order: [(order != null) ? order.split(':') : ['end', 'ASC']],
             attributes: (fields !=='*' && fields !=null) ? fields.split(','):null,
             include: [{

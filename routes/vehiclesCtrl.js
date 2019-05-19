@@ -81,6 +81,28 @@ module.exports={
         });
     },
 
+    vehiclesAvailable: function(req, res){
+        var fields = req.query.fields;
+        var limit = parseInt(req.query.limit);
+        var order = req.query.order;
+
+        models.vehicles.findAll({
+            order: [(order != null) ? order.split(':') : ['type', 'ASC']],
+            attributes: (fields !=='*' && fields !=null) ? fields.split(','):null,
+            limit: (!isNaN(limit)) ? limit : null,
+            where: { locked:0 }
+            }).then(function(vehicles){
+                if (vehicles){
+                    res.status(200).json(vehicles);
+                } else {
+                    return res.status(404).json({'error' : 'no vehicle found' });
+                }
+        }).catch(function(err){
+            console.log(err);
+            res.status(500).json({'error' : 'invalid fields' });
+        });
+    },
+
     updateVehicle: function(req, res){
         // Gettinh auth header
         var headerAuth = req.headers['authorization'];

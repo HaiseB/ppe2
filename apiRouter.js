@@ -23,6 +23,7 @@ exports.router = (function(){
 
     // Vehicles routes
     apiRouter.route('/vehicles/').get(vehiclesCtrl.listVehicles);
+    apiRouter.route('/vehicles/available/').get(vehiclesCtrl.vehiclesAvailable);
     // TO DO : list vehicule disponible (available)
     apiRouter.route('/vehicles/new').post(vehiclesCtrl.createVehicle);
     apiRouter.route('/vehicles/update').put(vehiclesCtrl.updateVehicle);
@@ -31,7 +32,6 @@ exports.router = (function(){
     apiRouter.route('/reservations/new/').post(reservationsCtrl.createReservation);
     apiRouter.route('/reservations/').get(reservationsCtrl.listReservations);
     apiRouter.route('/reservations/ongoing').get(reservationsCtrl.ongoingReservations);
-    // TO DO : list en cours (on going)
     // TO DO : list terminée (over)
     // TO DO : update
 
