@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.STRING,
     start: DataTypes.DATE,
     end: DataTypes.DATE,
-    users_id: DataTypes.INTEGER,
-    vehicles_id: DataTypes.INTEGER
+    userId: DataTypes.INTEGER,
+    vehicleId: DataTypes.INTEGER
   }, {});
   reservations.associate = function(models) {
     // associations can be defined here

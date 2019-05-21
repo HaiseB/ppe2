@@ -152,6 +152,70 @@ module.exports = {
             res.status(500).json({'error' : 'invalid fields' });
         });
     },
-}
 
-// TO DO : update
+    endReservation: function(req, res){
+        // Params
+        var status = 'Over';
+        var vehicleId = req.body.vehicleId;
+        var kilometers = req.body.kilometers;
+        var reservationId = req.body.reservationId;
+        var end = req.body.end;
+
+        asyncLib.waterfall([
+            function(done){
+                models.vehicles.findOne({
+                    where: {id:vehicleId}
+                }).then(function(vehicleFound){
+                    done(null, vehicleFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'unable to verify vehicle' });
+                });
+            },
+            function(vehicleFound, done){
+                models.reservations.findOne({
+                    where: {id:reservationId}
+                }).then(function(reservationFound){
+                    done(null, vehicleFound, reservationFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'unable to verify reservation' });
+                });
+            },
+            function(vehicleFound, reservationFound, done){
+                if (vehicleFound){
+                    if (end == null){
+                        var end = Date.now();
+                    }
+                    /*
+                    else {
+                        var today = new Date();
+                        var strToday = today.toString();
+                        var year = strToday.substring(11, 15);
+                        var month = strToday.substring(8, 10);
+                        var day = strToday.substring(4, 7);
+                        var concatenate = month+' '+day+', '+year+' '+end+':00';
+                        var end = new Date(concatenate);
+                    }*/
+                    vehicleFound.update({
+                            locked : 0,
+                            kilometers : (kilometers ? kilometers : vehicleFound.kilometers)
+                        })
+                    reservationFound.update({
+                        status : 'Terminée',
+                        end : end
+                        })
+                        .then(function(){
+                            done(reservationFound);
+                        });
+                } else {
+                    return res.status(400).json({'error' : 'vehicle not found' });
+                }
+            },
+        ], function(reservationFound){
+            if (reservationFound){
+                return res.status(201).json({'sucess' : 'Reservation ended'});
+            } else {
+                return res.status(400).json({'error' : 'cannot update reservation' });
+            }
+        });
+    }
+}

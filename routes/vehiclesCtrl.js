@@ -103,6 +103,25 @@ module.exports={
         });
     },
 
+    findVehicleById: function(req, res){
+
+        // Params
+        var id = req.body.id;
+
+        models.vehicles.findOne({
+            where: { id:id }
+            }).then(function(vehicles){
+                if (vehicles){
+                    res.status(200).json(vehicles);
+                } else {
+                    return res.status(404).json({'error' : 'no vehicle found'});
+                }
+        }).catch(function(err){
+            console.log(err);
+            res.status(500).json({'error' : 'invalid fields' });
+        });
+    },
+
     updateVehicle: function(req, res){
         // Gettinh auth header
         var headerAuth = req.headers['authorization'];

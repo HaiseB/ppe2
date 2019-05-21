@@ -36,9 +36,10 @@ module.exports={
             return res.status(400).json({'error' : 'email is invalid'});
         }
 
+        /*
         if (!PASSWORD_REGEX.test(password)){
             return res.status(400).json({'error' : 'password must include at least one number and one letter and must have 4 to 12 characteres'});
-        }
+        }*/
 
         /**
          * vérification que l'utilisateur n'existe pas déjà avant de l'ajouter
@@ -96,7 +97,7 @@ module.exports={
          * vérification que l'utilisateur existe bien
          */
         models.users.findOne({
-            where : { email: email }
+            where : { name: email }
         })
         .then(function(userFound) {
             if (userFound){

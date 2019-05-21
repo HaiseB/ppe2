@@ -23,17 +23,17 @@ exports.router = (function(){
 
     // Vehicles routes
     apiRouter.route('/vehicles/').get(vehiclesCtrl.listVehicles);
+    apiRouter.route('/vehicles/search').patch(vehiclesCtrl.findVehicleById);
     apiRouter.route('/vehicles/available/').get(vehiclesCtrl.vehiclesAvailable);
-    // TO DO : list vehicule disponible (available)
     apiRouter.route('/vehicles/new').post(vehiclesCtrl.createVehicle);
     apiRouter.route('/vehicles/update').put(vehiclesCtrl.updateVehicle);
 
     // Reservations routes
     apiRouter.route('/reservations/new/').post(reservationsCtrl.createReservation);
+    apiRouter.route('/reservations/end/').put(reservationsCtrl.endReservation);
     apiRouter.route('/reservations/').get(reservationsCtrl.listReservations);
     apiRouter.route('/reservations/ongoing').get(reservationsCtrl.ongoingReservations);
     // TO DO : list terminée (over)
-    // TO DO : update
 
     return apiRouter;
 })();
