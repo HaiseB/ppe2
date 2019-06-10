@@ -123,7 +123,6 @@ module.exports={
     },
 
     updateVehicle: function(req, res){
-        // Gettinh auth header
         var headerAuth = req.headers['authorization'];
 
         // Params
@@ -133,12 +132,13 @@ module.exports={
         var brand = req.body.brand;
         var kilometers = req.body.kilometers;
         var autonomy = req.body.autonomy;
+        var fuel = req.body.fuel;
         var locked = req.body.locked;
 
         asyncLib.waterfall([
             function(done){
                 models.vehicles.findOne({
-                    attributes: ['id','type','license_plate','model','brand','kilometers','autonomy','locked'],
+                    attributes: ['id','type','license_plate','model','brand','kilometers','autonomy','fuel','locked'],
                     where: { license_plate }
                 }).then(function(vehicleFound){
                     done(null, vehicleFound);
@@ -155,6 +155,7 @@ module.exports={
                         brand : (brand ? brand : vehicleFound.brand),
                         kilometers : (kilometers ? kilometers : vehicleFound.kilometers),
                         autonomy : (autonomy ? autonomy : vehicleFound.autonomy),
+                        fuel : (fuel ? fuel : vehicleFound.fuel),
                         locked : (locked ? locked : vehicleFound.locked)
                     }).then(function(){
                         done(vehicleFound);

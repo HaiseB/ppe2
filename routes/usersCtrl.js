@@ -120,7 +120,7 @@ module.exports={
         });
     },
 
-    getUserProfile: function(req, res){
+    getMyProfile: function(req, res){
         var headerAuth = req.headers['authorization'];
         var userId = jwtUtils.getUserId(headerAuth);
 
@@ -140,7 +140,7 @@ module.exports={
         });
     },
 
-    updateUserProfile: function(req, res){
+    updateMyProfile: function(req, res){
         // Gettinh auth header
         var headerAuth = req.headers['authorization'];
         var userId = jwtUtils.getUserId(headerAuth);
@@ -199,5 +199,76 @@ module.exports={
             console.log(err);
             res.status(500).json({'error' : 'invalid fields' });
         });
+    },
+
+    getUserById: function(req, res){
+
+        // Params
+        var id = req.body.id;
+
+        models.users.findOne({
+            where: { id }
+            }).then(function(users){
+                if (users){
+                    res.status(200).json(users);
+                } else {
+                    return res.status(404).json({'error' : 'no user found'});
+                }
+        }).catch(function(err){
+            console.log(err);
+            res.status(500).json({'error' : 'invalid fields' });
+        });
+    },
+
+    updateUser: function(req, res){
+        // Params
+        var userId = req.body.id;
+        var email = req.body.email;
+        var name = req.body.name;
+        var first_name = req.body.first_name;
+        var password = req.body.password;
+        var bio = req.body.bio;
+        var locked = req.body.locked;
+        var role = req.body.role;
+
+
+        asyncLib.waterfall([
+            function(done){
+                models.users.findOne({
+                    attributes: ['id','email','name','first_name','password','bio','locked','role'],
+                    where: { id:userId }
+                }).then(function(userFound){
+                    done(null, userFound);
+                }).catch(function(err){
+                    return res.status(500).json({'error' : 'enable to verify user' });
+                });
+            },
+            function(userFound, done){
+                if (userFound){
+                    userFound.update({
+                        email : (email ? email : userFound.email),
+                        name : (name ? name : userFound.name),
+                        first_name : (first_name ? first_name : userFound.first_name),
+                        password : (password ? password : userFound.password),
+                        bio : (bio ? bio : userFound.bio),
+                        locked : (locked ? locked : userFound.locked),
+                        role : (role ? role : userFound.role)
+                    }).then(function(){
+                        done(userFound);
+                    }).catch(function(err){
+                        return res.status(500).json({'error' : 'cannot update user' });
+                    });
+                } else {
+                    return  res.status(404).json({'error' : 'user not found' });
+                }
+            },
+        ],function(userFound){
+            if (userFound){
+                return  res.status(201).json(userFound);
+            } else {
+                return res.status(500).json({'error' : 'cannot update user profile' });
+            }
+        });
+
     }
 }

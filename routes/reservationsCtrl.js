@@ -8,9 +8,9 @@ var Sequelize= require('sequelize');
 const Op = Sequelize.Op;
 
 // Constants
-const TITLE_LIMIT=2;
-const CONTENT_LIMIT=8;
-const ITEMS_LIMIT   = 50;
+const TITLE_LIMIT = 2;
+const CONTENT_LIMIT = 8;
+const ITEMS_LIMIT = 50;
 
 //Routes
 module.exports = {
@@ -134,6 +134,39 @@ module.exports = {
             where: {status: 'En cours'},
             order: [(order != null) ? order.split(':') : ['end', 'ASC']],
             attributes: (fields !=='*' && fields !=null) ? fields.split(','):null,
+            include: [{
+                model: models.users,
+                attributes: [ 'name' ],
+            },{
+                model: models.vehicles,
+                attributes: [ 'license_plate','brand','model','kilometers' ]
+            }]
+            }).then(function(reservations){
+                if (reservations){
+                    res.status(200).json(reservations);
+                } else {
+                    return res.status(404).json({'error' : 'no reservations found' });
+                }
+        }).catch(function(err){
+            console.log(err);
+            res.status(500).json({'error' : 'invalid fields' });
+        });
+    },
+
+    completedReservations: function(req, res){
+        var fields = req.query.fields;
+        var limit = parseInt(req.query.limit);
+        var order = req.query.order;
+
+        if (limit > ITEMS_LIMIT) {
+            limit = ITEMS_LIMIT;
+        }
+
+        models.reservations.findAll({
+            where: {status: 'Terminée'},
+            order: [(order != null) ? order.split(':') : ['end', 'ASC']],
+            attributes: (fields !=='*' && fields !=null) ? fields.split(','):null,
+            limit: (!isNaN(limit)) ? limit : null,
             include: [{
                 model: models.users,
                 attributes: [ 'name' ],
